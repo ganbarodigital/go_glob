@@ -119,6 +119,13 @@ func TestPrefixMatchesSingleWildCards(t *testing.T) {
 			expectedResult:  "012345",
 			expectedSuccess: true,
 		},
+		// input does not start with pattern
+		{
+			input:           "0123456789",
+			pattern:         "1?345",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
 	}
 
 	for _, testData := range testDataSet {
