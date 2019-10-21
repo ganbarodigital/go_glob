@@ -58,9 +58,17 @@ func TestPrefixMatchesStaticStrings(t *testing.T) {
 			expectedResult:  "012345",
 			expectedSuccess: true,
 		},
+		// input does not start with static pattern
 		{
 			input:           "0123456789",
 			pattern:         "12345",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+		// input shorter than static pattern
+		{
+			input:           "012345",
+			pattern:         "0123456789",
 			expectedResult:  "",
 			expectedSuccess: false,
 		},
