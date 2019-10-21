@@ -42,20 +42,57 @@ package glob
 func MatchPrefix(input, pattern string, flags int) (int, bool) {
 	// shorthand
 	pLen := len(pattern)
+	iLen := len(input)
 
 	// where are we in the pattern?
 	p := 0
 
+	// where are we in the input?
+	i := 0
+
+	// if we need to restart, where do we restart from?
+	nextP := 0
+	nextI := -1
+
+	// we need to know if we are currently matching a variable-length
+	// wildcard
+	amMatching := false
+
 	// `i` will track our position in the input
-	for i := 0; i < len(input); i++ {
+	for i < iLen {
 		c := pattern[p]
+
+		if c == '*' {
+			// special case - variable length wildcard match
+			// we will 'fall forwards', and restart from the next
+			// character in our input, until we find the match
+			nextP = p
+			nextI = i + 1
+			amMatching = true
+			p++
+
+			// we want to try and match the current input char
+			// against our *next* pattern
+			if p < pLen {
+				c = pattern[p]
+			} else {
+				c = '?'
+			}
+		}
+
 		switch c {
 		case '?':
 			p++
+			i++
 		default:
 			// do we match?
 			if input[i] == c {
 				p++
+				i++
+				amMatching = false
+			} else if nextI >= 0 {
+				i = nextI
+				p = nextP
 			} else {
 				// no, we do not
 				return 0, false
@@ -64,9 +101,19 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 
 		// have we reached the end of the pattern?
 		if p >= pLen {
-			return i + 1, true
+			if amMatching {
+				p = pLen - 1
+			} else {
+				return i, true
+			}
 		}
 	}
 
+	// did we fall off the end, matching a variable-length wildcard?
+	if amMatching {
+		return len(input), true
+	}
+
+	// all done
 	return 0, false
 }

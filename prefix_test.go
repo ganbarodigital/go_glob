@@ -155,3 +155,72 @@ func TestPrefixMatchesSingleWildCards(t *testing.T) {
 		assert.Equal(t, testData.expectedResult, actualResult)
 	}
 }
+
+func TestPrefixMatchesVariableLengthWildCards(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		// variable-length wildcard, bounded
+		{
+			input:           "0123456789",
+			pattern:         "0*5",
+			expectedResult:  "012345",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, no prefix
+		{
+			input:           "0123456789",
+			pattern:         "*5",
+			expectedResult:  "012345",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, no suffix
+		{
+			input:           "0123456789",
+			pattern:         "012*",
+			expectedResult:  "0123456789",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, match all
+		{
+			input:           "01234567890",
+			pattern:         "*",
+			expectedResult:  "01234567890",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, wildcard matches nothing
+		{
+			input:           "01234567890",
+			pattern:         "012*345",
+			expectedResult:  "012345",
+			expectedSuccess: true,
+		},
+		// multiple variable length wildcards
+		{
+			input:           "0123456789",
+			pattern:         "0*2*4*6*8*",
+			expectedResult:  "0123456789",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess {
+			actualResult = testData.input[:actualLen]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
