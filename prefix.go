@@ -50,6 +50,8 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 	for i := 0; i < len(input); i++ {
 		c := pattern[p]
 		switch c {
+		case '?':
+			p++
 		default:
 			// do we match?
 			if input[i] == c {

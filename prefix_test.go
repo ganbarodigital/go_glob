@@ -80,3 +80,36 @@ func TestPrefixMatchesStaticStrings(t *testing.T) {
 		assert.Equal(t, testData.expectedResult, actualResult)
 	}
 }
+
+func TestPrefixMatchesSingleWildCards(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "0123456789",
+			pattern:         "0?2345",
+			expectedResult:  "012345",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess {
+			actualResult = testData.input[:actualLen]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess)
+		assert.Equal(t, testData.expectedResult, actualResult)
+	}
+}
