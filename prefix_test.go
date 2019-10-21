@@ -58,6 +58,12 @@ func TestPrefixMatchesStaticStrings(t *testing.T) {
 			expectedResult:  "012345",
 			expectedSuccess: true,
 		},
+		{
+			input:           "0123456789",
+			pattern:         "12345",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
 	}
 
 	for _, testData := range testDataSet {
