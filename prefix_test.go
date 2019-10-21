@@ -105,6 +105,13 @@ func TestPrefixMatchesSingleWildCards(t *testing.T) {
 			expectedResult:  "012345",
 			expectedSuccess: true,
 		},
+		// multiple single wildcards
+		{
+			input:           "0123456789",
+			pattern:         "0?23?5",
+			expectedResult:  "012345",
+			expectedSuccess: true,
+		},
 	}
 
 	for _, testData := range testDataSet {
