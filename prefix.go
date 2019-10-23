@@ -156,48 +156,56 @@ func MatchGreedyPrefix(input, pattern string, flags int) (int, bool) {
 	amMatching := false
 
 	// `i` will track our position in the input
-	for i < iLen {
-		c := pR[p]
-		t := iR[i]
+	for i < iLen || p < pLen {
+		if p < pLen {
+			c := pR[p]
 
-		if c == '*' {
-			// special case - variable length wildcard match
-			// we will 'fall backwards', and restart from the next
-			// character in our input, until we find the match
-			nextP = p
-			nextI = i + 1
-			nextIPos = iPos + utf8.RuneLen(t)
-			amMatching = true
-			p++
+			if c == '*' {
+				if i < iLen {
+					// special case - variable length wildcard match
+					// we will 'fall backwards', and restart from the next
+					// character in our input, until we find the match
+					nextP = p
+					nextI = i + 1
+					nextIPos = iPos + utf8.RuneLen(iR[i])
+					amMatching = true
+					p++
 
-			// we want to try and match the current input char
-			// against our *next* pattern
-			if p < pLen {
-				c = pR[p]
-			} else {
-				c = '?'
+					// we want to try and match the current input char
+					// against our *next* pattern
+					if p < pLen {
+						c = pR[p]
+					} else {
+						c = '?'
+					}
+				} else if p == pLen-1 {
+					// we've reached the end of the pattern
+					return iPos, true
+				}
 			}
-		}
 
-		switch c {
-		case '?':
-			p++
-			iPos += utf8.RuneLen(t)
-			i++
-		default:
-			// do we match?
-			if t == c {
-				p++
-				iPos += utf8.RuneLen(t)
-				i++
-				amMatching = false
-			} else if nextI >= 0 {
-				i = nextI
-				p = nextP
-				iPos = nextIPos
-			} else {
-				// no, we do not
-				return 0, false
+			switch c {
+			case '?':
+				if i < iLen {
+					p++
+					iPos += utf8.RuneLen(iR[i])
+					i++
+				}
+			default:
+				// do we match?
+				if i < iLen && iR[i] == c {
+					p++
+					iPos += utf8.RuneLen(iR[i])
+					i++
+					amMatching = false
+				} else if nextI >= 0 {
+					i = nextI
+					p = nextP
+					iPos = nextIPos
+				} else {
+					// no, we do not
+					return 0, false
+				}
 			}
 		}
 
