@@ -48,6 +48,45 @@ type testDataStruct struct {
 	expectedSuccess bool
 }
 
+func TestPrefixMatchesEmptyStrings(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		// {
+		// 	input:           "",
+		// 	pattern:         "",
+		// 	expectedResult:  "",
+		// 	expectedSuccess: true,
+		// },
+		{
+			input:           "",
+			pattern:         "*",
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualLen, actualSuccess := MatchGreedyPrefix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess {
+			actualResult = testData.input[:actualLen]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
 func TestPrefixMatchesStaticStrings(t *testing.T) {
 	t.Parallel()
 
@@ -202,6 +241,21 @@ func TestPrefixMatchesVariableLengthWildCards(t *testing.T) {
 			expectedResult:  "0123456789",
 			expectedSuccess: true,
 		},
+		// variable-length wildcard, shortest match
+		{
+			input:           "012345012345",
+			pattern:         "0*5",
+			expectedResult:  "012345",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, longest match
+		{
+			input:           "012345012345",
+			pattern:         "0*5",
+			expectedResult:  "012345012345",
+			flags:           GlobLongestMatch,
+			expectedSuccess: true,
+		},
 	}
 
 	for _, testData := range testDataSet {
@@ -211,7 +265,7 @@ func TestPrefixMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess := MatchGreedyPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]

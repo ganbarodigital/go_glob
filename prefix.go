@@ -34,6 +34,10 @@
 
 package glob
 
+import (
+	"unicode/utf8"
+)
+
 // MatchPrefix returns the prefix of input that matches the glob pattern
 //
 // flags can be:
@@ -112,6 +116,104 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 	// did we fall off the end, matching a variable-length wildcard?
 	if amMatching {
 		return len(input), true
+	}
+
+	// all done
+	return 0, false
+}
+
+// MatchGreedyPrefix will treat '*' as match-most
+func MatchGreedyPrefix(input, pattern string, flags int) (int, bool) {
+	// special case - empty input, empty pattern
+	if len(input) == 0 && len(pattern) == 0 {
+		return 0, true
+	}
+
+	// we need to break down our pattern
+	pR := []rune(pattern)
+	iR := []rune(input)
+
+	// how many runes are there in the pattern?
+	pLen := len(pR)
+
+	// and how many in the input?
+	iLen := len(iR)
+
+	// where are we in the pattern?
+	p := 0
+
+	// where are we in the input?
+	i := 0
+	iPos := 0
+
+	// if we need to restart, where do we restart from?
+	nextP := 0
+	nextI := -1
+	nextIPos := -1
+
+	// we need to know if we are currently matching a variable-length
+	// wildcard
+	amMatching := false
+
+	// `i` will track our position in the input
+	for i < iLen {
+		c := pR[p]
+		t := iR[i]
+
+		if c == '*' {
+			// special case - variable length wildcard match
+			// we will 'fall backwards', and restart from the next
+			// character in our input, until we find the match
+			nextP = p
+			nextI = i + 1
+			nextIPos = iPos + utf8.RuneLen(t)
+			amMatching = true
+			p++
+
+			// we want to try and match the current input char
+			// against our *next* pattern
+			if p < pLen {
+				c = pR[p]
+			} else {
+				c = '?'
+			}
+		}
+
+		switch c {
+		case '?':
+			p++
+			iPos += utf8.RuneLen(t)
+			i++
+		default:
+			// do we match?
+			if t == c {
+				p++
+				iPos += utf8.RuneLen(t)
+				i++
+				amMatching = false
+			} else if nextI >= 0 {
+				i = nextI
+				p = nextP
+				iPos = nextIPos
+			} else {
+				// no, we do not
+				return 0, false
+			}
+		}
+
+		// have we reached the end of the pattern?
+		if p >= pLen {
+			if amMatching {
+				p = pLen - 1
+			} else {
+				return iPos, true
+			}
+		}
+	}
+
+	// did we fall off the end, matching a variable-length wildcard?
+	if amMatching {
+		return iLen, true
 	}
 
 	// all done
