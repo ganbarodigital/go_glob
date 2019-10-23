@@ -52,15 +52,29 @@ func TestPrefixMatchesEmptyStrings(t *testing.T) {
 	t.Parallel()
 
 	testDataSet := []testDataStruct{
-		// {
-		// 	input:           "",
-		// 	pattern:         "",
-		// 	expectedResult:  "",
-		// 	expectedSuccess: true,
-		// },
+		{
+			input:           "",
+			pattern:         "",
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
 		{
 			input:           "",
 			pattern:         "*",
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+		{
+			input:           "",
+			pattern:         "",
+			flags:           GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+		{
+			input:           "",
+			pattern:         "*",
+			flags:           GlobLongestMatch,
 			expectedResult:  "",
 			expectedSuccess: true,
 		},
