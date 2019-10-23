@@ -73,7 +73,7 @@ func TestPrefixMatchesEmptyStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchGreedyPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -265,7 +265,7 @@ func TestPrefixMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchGreedyPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]

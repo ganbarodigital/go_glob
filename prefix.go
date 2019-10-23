@@ -44,62 +44,101 @@ import (
 // - GlobShortestMatch (default)
 // - GlobLongestMatch
 func MatchPrefix(input, pattern string, flags int) (int, bool) {
-	// shorthand
-	pLen := len(pattern)
-	iLen := len(input)
+	switch flags {
+	case GlobShortestMatch:
+		return MatchShortestPrefix(input, pattern)
+	case GlobLongestMatch:
+		return MatchLongestPrefix(input, pattern)
+	default:
+		return MatchShortestPrefix(input, pattern)
+	}
+}
+
+// MatchShortestPrefix will treat '*' as the shortest number of chars
+// that it can
+func MatchShortestPrefix(input, pattern string) (int, bool) {
+	// special case - empty input, empty pattern
+	if len(input) == 0 && len(pattern) == 0 {
+		return 0, true
+	}
+
+	// we need to break down our pattern
+	pR := []rune(pattern)
+	iR := []rune(input)
+
+	// how many runes are there in the pattern?
+	pLen := len(pR)
+
+	// and how many in the input?
+	iLen := len(iR)
 
 	// where are we in the pattern?
 	p := 0
 
 	// where are we in the input?
 	i := 0
+	iPos := 0
 
 	// if we need to restart, where do we restart from?
 	nextP := 0
 	nextI := -1
+	nextIPos := -1
 
 	// we need to know if we are currently matching a variable-length
 	// wildcard
 	amMatching := false
 
 	// `i` will track our position in the input
-	for i < iLen {
-		c := pattern[p]
+	for i < iLen || p < pLen {
+		if p < pLen {
+			c := pR[p]
 
-		if c == '*' {
-			// special case - variable length wildcard match
-			// we will 'fall forwards', and restart from the next
-			// character in our input, until we find the match
-			nextP = p
-			nextI = i + 1
-			amMatching = true
-			p++
+			if c == '*' {
+				if i < iLen {
+					// special case - variable length wildcard match
+					// we will 'fall backwards', and restart from the next
+					// character in our input, until we find the match
+					nextP = p
+					nextI = i + 1
+					nextIPos = iPos + utf8.RuneLen(iR[i])
+					amMatching = true
+					p++
 
-			// we want to try and match the current input char
-			// against our *next* pattern
-			if p < pLen {
-				c = pattern[p]
-			} else {
-				c = '?'
+					// we want to try and match the current input char
+					// against our *next* pattern
+					if p < pLen {
+						c = pR[p]
+					} else {
+						c = '?'
+					}
+				} else if p == pLen-1 {
+					// we've reached the end of the pattern
+					return iPos, true
+				}
 			}
-		}
 
-		switch c {
-		case '?':
-			p++
-			i++
-		default:
-			// do we match?
-			if input[i] == c {
-				p++
-				i++
-				amMatching = false
-			} else if nextI >= 0 {
-				i = nextI
-				p = nextP
-			} else {
-				// no, we do not
-				return 0, false
+			switch c {
+			case '?':
+				if i < iLen {
+					p++
+					iPos += utf8.RuneLen(iR[i])
+					i++
+				}
+			default:
+				// do we match?
+				if i < iLen && iR[i] == c {
+					p++
+					iPos += utf8.RuneLen(iR[i])
+					i++
+					amMatching = false
+				} else if nextI >= 0 {
+					i = nextI
+					p = nextP
+					iPos = nextIPos
+				} else {
+					// no, we do not
+					return 0, false
+				}
 			}
 		}
 
@@ -108,22 +147,22 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 			if amMatching {
 				p = pLen - 1
 			} else {
-				return i, true
+				return iPos, true
 			}
 		}
 	}
 
 	// did we fall off the end, matching a variable-length wildcard?
 	if amMatching {
-		return len(input), true
+		return iLen, true
 	}
 
 	// all done
 	return 0, false
 }
 
-// MatchGreedyPrefix will treat '*' as match-most
-func MatchGreedyPrefix(input, pattern string, flags int) (int, bool) {
+// MatchLongestPrefix will treat '*' as match-most
+func MatchLongestPrefix(input, pattern string) (int, bool) {
 	// special case - empty input, empty pattern
 	if len(input) == 0 && len(pattern) == 0 {
 		return 0, true
