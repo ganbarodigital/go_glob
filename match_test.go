@@ -309,6 +309,45 @@ func TestMatchPrefixMatchesVariableLengthWildCards(t *testing.T) {
 	}
 }
 
+func TestMatchPrefixMatchesCharacterSets(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "01234567890",
+			pattern:         "[12340]1234",
+			expectedResult:  "01234",
+			expectedSuccess: true,
+		},
+		{
+			input:           "01234567890",
+			pattern:         "[0-9][0-9][0-9]",
+			expectedResult:  "012",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess {
+			actualResult = testData.input[:actualLen]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
 func TestMatchSuffixMatchesEmptyStrings(t *testing.T) {
 	t.Parallel()
 
