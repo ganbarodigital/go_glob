@@ -50,14 +50,11 @@ func Match(input, pattern string) bool {
 // - GlobShortestMatch (default)
 // - GlobLongestMatch
 func MatchPrefix(input, pattern string, flags int) (int, bool) {
-	switch flags {
-	case GlobShortestMatch:
-		return MatchShortestPrefix(input, pattern)
-	case GlobLongestMatch:
+	if flags&GlobLongestMatch != 0 {
 		return MatchLongestPrefix(input, pattern)
-	default:
-		return MatchShortestPrefix(input, pattern)
 	}
+
+	return MatchShortestPrefix(input, pattern)
 }
 
 // MatchShortestPrefix treats '*' as matching minimum number of
@@ -94,14 +91,11 @@ func MatchLongestPrefix(input, pattern string) (int, bool) {
 // - GlobShortestMatch (default)
 // - GlobLongestMatch
 func MatchSuffix(input, pattern string, flags int) (int, bool) {
-	switch flags {
-	case GlobShortestMatch:
-		return MatchShortestSuffix(input, pattern)
-	case GlobLongestMatch:
+	if flags&GlobLongestMatch != 0 {
 		return MatchLongestSuffix(input, pattern)
-	default:
-		return MatchShortestSuffix(input, pattern)
 	}
+
+	return MatchShortestSuffix(input, pattern)
 }
 
 // MatchShortestSuffix treats '*' as matching minimum number of
