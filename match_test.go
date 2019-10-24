@@ -48,7 +48,7 @@ type testDataStruct struct {
 	expectedSuccess bool
 }
 
-func TestPrefixMatchesEmptyStrings(t *testing.T) {
+func TestMatchPrefixMatchesEmptyStrings(t *testing.T) {
 	t.Parallel()
 
 	testDataSet := []testDataStruct{
@@ -101,7 +101,7 @@ func TestPrefixMatchesEmptyStrings(t *testing.T) {
 	}
 }
 
-func TestPrefixMatchesStaticStrings(t *testing.T) {
+func TestMatchPrefixMatchesStaticStrings(t *testing.T) {
 	t.Parallel()
 
 	testDataSet := []testDataStruct{
@@ -148,7 +148,7 @@ func TestPrefixMatchesStaticStrings(t *testing.T) {
 	}
 }
 
-func TestPrefixMatchesSingleWildCards(t *testing.T) {
+func TestMatchPrefixMatchesSingleWildCards(t *testing.T) {
 	t.Parallel()
 
 	testDataSet := []testDataStruct{
@@ -209,7 +209,7 @@ func TestPrefixMatchesSingleWildCards(t *testing.T) {
 	}
 }
 
-func TestPrefixMatchesVariableLengthWildCards(t *testing.T) {
+func TestMatchPrefixMatchesVariableLengthWildCards(t *testing.T) {
 	t.Parallel()
 
 	testDataSet := []testDataStruct{

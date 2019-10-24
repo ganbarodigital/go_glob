@@ -48,12 +48,16 @@ func buildRegex(pattern []parsedPattern, flags int) string {
 		rawRegex.WriteRune('^')
 	}
 
-	for _, part := range pattern {
+	for pos, part := range pattern {
 		switch part.patternType {
 		case patternTypeSingleMatch:
 			rawRegex.WriteString(".")
 		case patternTypeMultiMatch:
-			if flags&GlobLongestMatch != 0 {
+			// special case - a * at the end of the pattern must always
+			// be longest match
+			if pos == len(pattern)-1 {
+				rawRegex.WriteString(".*")
+			} else if flags&GlobLongestMatch != 0 {
 				rawRegex.WriteString(".*")
 			} else {
 				rawRegex.WriteString(".*?")
@@ -71,10 +75,19 @@ func buildRegex(pattern []parsedPattern, flags int) string {
 	return rawRegex.String()
 }
 
-// compileRegex turns a parsed glob pattern into a compiled Golang regex
-// that is ready to use
-func compileRegex(pattern []parsedPattern, flags int) (*regexp.Regexp, error) {
-	rawRegex := buildRegex(pattern, flags)
-
+// Compile attempts to convert your glob pattern into a Golang regex
+// that's ready to use
+func Compile(pattern string, flags int) (*regexp.Regexp, error) {
+	parsedPattern := parsePattern(pattern)
+	rawRegex := buildRegex(parsedPattern, flags)
 	return regexp.Compile(rawRegex)
+}
+
+// MustCompile is like Compile, but it panics if the regex cannot be
+// compiled
+func MustCompile(pattern string, flags int) *regexp.Regexp {
+	parsedPattern := parsePattern(pattern)
+	rawRegex := buildRegex(parsedPattern, flags)
+
+	return regexp.MustCompile(rawRegex)
 }

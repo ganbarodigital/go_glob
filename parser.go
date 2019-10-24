@@ -130,6 +130,14 @@ func parsePattern(pattern string) []parsedPattern {
 			// this character needs escaping
 			currentTokenType = patternTokenStatic
 			patternBuf.WriteString("\\+")
+		case '(':
+			// this character needs escaping
+			currentTokenType = patternTokenStatic
+			patternBuf.WriteString("\\(")
+		case '{':
+			// this character needs escaping
+			currentTokenType = patternTokenStatic
+			patternBuf.WriteString("\\{")
 		default:
 			currentTokenType = patternTokenStatic
 			patternBuf.WriteRune(p)
