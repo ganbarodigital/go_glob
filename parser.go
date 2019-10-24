@@ -122,6 +122,14 @@ func parsePattern(pattern string) []parsedPattern {
 					patternType: patternTypeMultiMatch,
 				},
 			)
+		case '.':
+			// this character needs escaping
+			currentTokenType = patternTokenStatic
+			patternBuf.WriteString("\\.")
+		case '+':
+			// this character needs escaping
+			currentTokenType = patternTokenStatic
+			patternBuf.WriteString("\\+")
 		default:
 			currentTokenType = patternTokenStatic
 			patternBuf.WriteRune(p)

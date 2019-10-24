@@ -148,6 +148,32 @@ func TestParsePattern(t *testing.T) {
 				},
 			},
 		},
+		{
+			input: "*.go",
+			expectedResult: []parsedPattern{
+				{
+					pattern:     "*",
+					patternType: patternTypeMultiMatch,
+				},
+				{
+					pattern:     "\\.go",
+					patternType: patternTypeStatic,
+				},
+			},
+		},
+		{
+			input: "*+go",
+			expectedResult: []parsedPattern{
+				{
+					pattern:     "*",
+					patternType: patternTypeMultiMatch,
+				},
+				{
+					pattern:     "\\+go",
+					patternType: patternTypeStatic,
+				},
+			},
+		},
 	}
 
 	for _, testData := range testDataSet {
