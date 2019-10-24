@@ -125,6 +125,22 @@ func TestMatchPrefixMatchesStaticStrings(t *testing.T) {
 			expectedResult:  "",
 			expectedSuccess: false,
 		},
+		// input does not start with static pattern, longest match
+		{
+			input:           "0123456789",
+			pattern:         "12345",
+			flags: 			 GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+		// input shorter than static pattern, longest match
+		{
+			input:           "012345",
+			pattern:         "0123456789",
+			flags:           GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
 	}
 
 	for _, testData := range testDataSet {
