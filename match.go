@@ -35,7 +35,19 @@
 package glob
 
 // Match determines if the whole input string matches the given glob
-// pattern
+// pattern.
+//
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
 func Match(input, pattern string) bool {
 	flags := GlobMatchWholeString + GlobShortestMatch
 	regex := MustCompile(pattern, flags)
@@ -46,9 +58,25 @@ func Match(input, pattern string) bool {
 
 // MatchPrefix returns the prefix of input that matches the glob pattern
 //
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
 // flags can be:
 // - GlobShortestMatch (default)
 // - GlobLongestMatch
+//
+// Returns
+// - length of prefix that matches, or zero otherwise
+// - `true` if the input has prefix that matched the pattern
 func MatchPrefix(input, pattern string, flags int) (int, bool) {
 	if flags&GlobLongestMatch != 0 {
 		return MatchLongestPrefix(input, pattern)
@@ -57,8 +85,24 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 	return MatchShortestPrefix(input, pattern)
 }
 
-// MatchShortestPrefix treats '*' as matching minimum number of
-// characters
+// MatchShortestPrefix returns the prefix of input that matches the glob
+// pattern. It treats '*' as matching minimum number of characters.
+//
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// Returns
+// - length of prefix that matches, or zero otherwise
+// - `true` if the input has prefix that matched the pattern
 func MatchShortestPrefix(input, pattern string) (int, bool) {
 	flags := GlobAnchorPrefix + GlobShortestMatch
 	regex := MustCompile(pattern, flags)
@@ -71,8 +115,24 @@ func MatchShortestPrefix(input, pattern string) (int, bool) {
 	return loc[1], true
 }
 
-// MatchLongestPrefix treats '*' as matching maximum number of
-// characters
+// MatchLongestPrefix returns the prefix of input that matches the glob
+// pattern. It treats '*' as matching maximum number of characters.
+//
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// Returns
+// - length of prefix that matches, or zero otherwise
+// - `true` if the input has prefix tath matched the pattern
 func MatchLongestPrefix(input, pattern string) (int, bool) {
 	flags := GlobAnchorPrefix + GlobLongestMatch
 	regex := MustCompile(pattern, flags)
@@ -85,11 +145,27 @@ func MatchLongestPrefix(input, pattern string) (int, bool) {
 	return loc[1], true
 }
 
-// MatchSuffix returns the start of input that matches the glob pattern
+// MatchSuffix returns the start of input that matches the glob pattern.
+//
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
 //
 // flags can be:
 // - GlobShortestMatch (default)
 // - GlobLongestMatch
+//
+// Returns
+// - start of suffix that matches (can be len(input)), or zero otherwise
+// - `true` if the input has suffix that matched the pattern
 func MatchSuffix(input, pattern string, flags int) (int, bool) {
 	if flags&GlobLongestMatch != 0 {
 		return MatchLongestSuffix(input, pattern)
@@ -98,8 +174,27 @@ func MatchSuffix(input, pattern string, flags int) (int, bool) {
 	return MatchShortestSuffix(input, pattern)
 }
 
-// MatchShortestSuffix treats '*' as matching minimum number of
-// characters
+// MatchShortestSuffix returns the suffix of input that matches the glob
+// pattern. It treats '*' as matching minimum number of characters.
+//
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// It is computationally more expensive than the other MatchXXX() functions,
+// due to Golang's leftmost-match mechanics (which we have to compensate for).
+//
+// Returns
+// - start of suffix that matches (can be len(input)), or zero otherwise
+// - `true` if the input has suffix that matched the pattern
 func MatchShortestSuffix(input, pattern string) (int, bool) {
 	flags := GlobAnchorSuffix + GlobShortestMatch
 	regex := MustCompile(pattern, flags)
@@ -136,8 +231,24 @@ func MatchShortestSuffix(input, pattern string) (int, bool) {
 	return lastLoc[0], true
 }
 
-// MatchLongestSuffix treats '*' as matching maximum number of
-// characters
+// MatchLongestSuffix returns the suffix of input that matches the glob
+// pattern. It treats '*' as matching maximum number of characters.
+//
+// Pattern can be built from:
+//
+//  *     Matches zero or more characters
+//  ?     Matches exactly one character
+//  [...] Matches any one character within the brackets
+//
+// any other character matches itself
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// Returns
+// - start of suffix that matches (can be len(input)), or zero otherwise
+// - `true` if the input has suffix that matched the pattern
 func MatchLongestSuffix(input, pattern string) (int, bool) {
 	flags := GlobAnchorSuffix + GlobLongestMatch
 	regex := MustCompile(pattern, flags)
