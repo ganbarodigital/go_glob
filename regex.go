@@ -34,21 +34,47 @@
 
 package glob
 
-const (
-	// GlobShortestMatch makes wildcards match the minimum number of
-	// characters possible
-	GlobShortestMatch = 0
-	// GlobLongestMatch makes wildcards match the maximum number of
-	// characters possible
-	GlobLongestMatch = 1
-	// GlobAnchorPrefix makes the glob pattern match from the start
-	// of your input string
-	GlobAnchorPrefix = 2
-	// GlobAnchorSuffix makes the glob pattern match up to the end
-	// of your input string
-	GlobAnchorSuffix = 4
+import (
+	"regexp"
+	"strings"
 )
 
-// GlobMatchWholeString makes the glob pattern apply to all of
-// your input string
-const GlobMatchWholeString = GlobAnchorPrefix + GlobAnchorSuffix
+// buildRegex turns a parsed pattern into the equivalent Golang regex
+// expression
+func buildRegex(pattern []parsedPattern, flags int) string {
+	rawRegex := strings.Builder{}
+
+	if flags&GlobAnchorPrefix != 0 {
+		rawRegex.WriteRune('^')
+	}
+
+	for _, part := range pattern {
+		switch part.patternType {
+		case patternTypeSingleMatch:
+			rawRegex.WriteString(".")
+		case patternTypeMultiMatch:
+			if flags&GlobLongestMatch != 0 {
+				rawRegex.WriteString(".*")
+			} else {
+				rawRegex.WriteString(".*?")
+			}
+		case patternTypeStatic:
+			// TODO - we need to escape characters in the pattern
+			rawRegex.WriteString(part.pattern)
+		}
+	}
+
+	if flags&GlobAnchorSuffix != 0 {
+		rawRegex.WriteRune('$')
+	}
+
+	return rawRegex.String()
+}
+
+// compileRegex turns a parsed glob pattern into a compiled Golang regex
+// that is ready to use
+func compileRegex(pattern []parsedPattern, flags int) (*regexp.Regexp, error) {
+	rawRegex := buildRegex(pattern, flags)
+
+	return regexp.Compile(rawRegex)
+}
