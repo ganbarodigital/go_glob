@@ -48,6 +48,232 @@ type testDataStruct struct {
 	expectedSuccess bool
 }
 
+func TestMatchMatchesEmptyStrings(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "",
+			pattern:         "",
+			expectedSuccess: true,
+		},
+		{
+			input:           "",
+			pattern:         "*",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualSuccess := Match(testData.input, testData.pattern)
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+	}
+}
+
+func TestMatchMatchesStaticStrings(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "0123456789",
+			pattern:         "0123456789",
+			expectedSuccess: true,
+		},
+		// input is same length, but different
+		{
+			input:           "0123456789",
+			pattern:         "1234567890",
+			expectedSuccess: false,
+		},
+		// input shorter than static pattern
+		{
+			input:           "012345",
+			pattern:         "0123456789",
+			expectedSuccess: false,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualSuccess := Match(testData.input, testData.pattern)
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+	}
+}
+
+func TestMatchMatchesSingleWildCards(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "0123456789",
+			pattern:         "0?23456789",
+			expectedSuccess: true,
+		},
+		// multiple single wildcards
+		{
+			input:           "0123456789",
+			pattern:         "0?23?5?7?9",
+			expectedSuccess: true,
+		},
+		// ALL single wildcards
+		{
+			input:           "0123456789",
+			pattern:         "??????????",
+			expectedSuccess: true,
+		},
+		// input does not start with pattern
+		{
+			input:           "0123456789",
+			pattern:         "1?34567890",
+			expectedSuccess: false,
+		},
+		// input shorter than pattern
+		{
+			input:           "012345",
+			pattern:         "0?23456789",
+			expectedSuccess: false,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualSuccess := Match(testData.input, testData.pattern)
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+	}
+}
+
+func TestMatchMatchesVariableLengthWildCards(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		// variable-length wildcard, bounded
+		{
+			input:           "0123456789",
+			pattern:         "0*9",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, no prefix
+		{
+			input:           "0123456789",
+			pattern:         "*9",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, no suffix
+		{
+			input:           "0123456789",
+			pattern:         "012*",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, match all
+		{
+			input:           "01234567890",
+			pattern:         "*",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, wildcard matches nothing
+		{
+			input:           "01234567890",
+			pattern:         "012*34567890",
+			expectedSuccess: true,
+		},
+		// multiple variable length wildcards
+		{
+			input:           "0123456789",
+			pattern:         "0*2*4*6*8*",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, prefix does not match
+		{
+			input:           "01115012225",
+			pattern:         "6*5",
+			expectedSuccess: false,
+		},
+		// variable-length wildcard, suffix does not match
+		{
+			input:           "01115012225",
+			pattern:         "0*9",
+			expectedSuccess: false,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualSuccess := Match(testData.input, testData.pattern)
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+	}
+}
+
+func TestMatchMatchesCharacterSets(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "01234567890",
+			pattern:         "[12340]1234567890",
+			expectedResult:  "01234",
+			expectedSuccess: true,
+		},
+		{
+			input:           "01234567890",
+			pattern:         "[0-9][0-9][0-9]34567890",
+			expectedResult:  "012",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualSuccess := Match(testData.input, testData.pattern)
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+	}
+}
+
 func TestMatchPrefixMatchesEmptyStrings(t *testing.T) {
 	t.Parallel()
 
