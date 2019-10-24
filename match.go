@@ -85,7 +85,7 @@ func MatchLongestPrefix(input, pattern string) (int, bool) {
 	return loc[1], true
 }
 
-// MatchSuffix returns the end of input that matches the glob pattern
+// MatchSuffix returns the start of input that matches the glob pattern
 //
 // flags can be:
 // - GlobShortestMatch (default)
@@ -109,7 +109,31 @@ func MatchShortestSuffix(input, pattern string) (int, bool) {
 		return 0, false
 	}
 
-	return loc[1], true
+	// Golang's regexes return the left-most result ... which may not
+	// be the shortest result when we're anchoring to a suffix
+	//
+	// once we have found a match, we need to see if there is a shorter
+	// string that will also match
+	//
+	// I'm sure this can be optimised in the future. PRs most welcome!
+	lastLoc := loc
+	i := lastLoc[0] + 1
+	for i < len(input)+1 {
+		var subLoc []int
+		if i == len(input) {
+			subLoc = regex.FindStringIndex("")
+		} else {
+			subLoc = regex.FindStringIndex(input[i:])
+		}
+		if subLoc == nil {
+			return lastLoc[0], true
+		}
+		copy(lastLoc, subLoc)
+		lastLoc[0] += i
+		lastLoc[1] += i
+		i += subLoc[0] + 1
+	}
+	return lastLoc[0], true
 }
 
 // MatchLongestSuffix treats '*' as matching maximum number of
@@ -123,5 +147,5 @@ func MatchLongestSuffix(input, pattern string) (int, bool) {
 		return 0, false
 	}
 
-	return loc[1], true
+	return loc[0], true
 }

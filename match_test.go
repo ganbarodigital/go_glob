@@ -129,7 +129,7 @@ func TestMatchPrefixMatchesStaticStrings(t *testing.T) {
 		{
 			input:           "0123456789",
 			pattern:         "12345",
-			flags: 			 GlobLongestMatch,
+			flags:           GlobLongestMatch,
 			expectedResult:  "",
 			expectedSuccess: false,
 		},
@@ -159,8 +159,8 @@ func TestMatchPrefixMatchesStaticStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
-		assert.Equal(t, testData.expectedSuccess, actualSuccess)
-		assert.Equal(t, testData.expectedResult, actualResult)
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
 }
 
@@ -220,8 +220,8 @@ func TestMatchPrefixMatchesSingleWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
-		assert.Equal(t, testData.expectedSuccess, actualSuccess)
-		assert.Equal(t, testData.expectedResult, actualResult)
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
 }
 
@@ -273,9 +273,9 @@ func TestMatchPrefixMatchesVariableLengthWildCards(t *testing.T) {
 		},
 		// variable-length wildcard, shortest match
 		{
-			input:           "012345012345",
+			input:           "01115012225",
 			pattern:         "0*5",
-			expectedResult:  "012345",
+			expectedResult:  "01115",
 			expectedSuccess: true,
 		},
 		// variable-length wildcard, longest match
@@ -299,6 +299,274 @@ func TestMatchPrefixMatchesVariableLengthWildCards(t *testing.T) {
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
+func TestMatchSuffixMatchesEmptyStrings(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "",
+			pattern:         "",
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+		{
+			input:           "",
+			pattern:         "*",
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+		{
+			input:           "",
+			pattern:         "",
+			flags:           GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+		{
+			input:           "",
+			pattern:         "*",
+			flags:           GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualLen, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess {
+			actualResult = testData.input[:actualLen]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
+func TestMatchSuffixMatchesStaticStrings(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "0123456789",
+			pattern:         "3456789",
+			expectedResult:  "3456789",
+			expectedSuccess: true,
+		},
+		// input does not end with static pattern
+		{
+			input:           "0123456789",
+			pattern:         "678",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+		// input shorter than static pattern
+		{
+			input:           "56789",
+			pattern:         "0123456789",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+		// input does not end with static pattern, longest match
+		{
+			input:           "0123456789",
+			pattern:         "5678",
+			flags:           GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+		// input shorter than static pattern, longest match
+		{
+			input:           "012345",
+			pattern:         "0123456789",
+			flags:           GlobLongestMatch,
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualStart, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess && actualStart < len(testData.input) {
+			actualResult = testData.input[actualStart:]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
+func TestMatchSuffixMatchesSingleWildCards(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "0123456789",
+			pattern:         "56?89",
+			expectedResult:  "56789",
+			expectedSuccess: true,
+		},
+		// multiple single wildcards
+		{
+			input:           "0123456789",
+			pattern:         "5?7?9",
+			expectedResult:  "56789",
+			expectedSuccess: true,
+		},
+		// ALL single wildcards
+		{
+			input:           "0123456789",
+			pattern:         "??????",
+			expectedResult:  "456789",
+			expectedSuccess: true,
+		},
+		// input does not end with pattern
+		{
+			input:           "0123456789",
+			pattern:         "6?8",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+		// input shorter than pattern
+		{
+			input:           "012345",
+			pattern:         "0?23456789",
+			expectedResult:  "",
+			expectedSuccess: false,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualStart, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess && actualStart < len(testData.input) {
+			actualResult = testData.input[actualStart:]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
+func TestMatchSuffixMatchesVariableLengthWildCards(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		// variable-length wildcard, bounded
+		{
+			input:           "011115022225",
+			pattern:         "0*5",
+			expectedResult:  "022225",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, bounded
+		{
+			input:           "0123456789",
+			pattern:         "4*9",
+			expectedResult:  "456789",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, no prefix
+		{
+			input:           "0123456789",
+			pattern:         "*9",
+			expectedResult:  "9",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, no suffix
+		{
+			input:           "0123456789",
+			pattern:         "012*",
+			expectedResult:  "0123456789",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, match all
+		{
+			input:           "01234567890",
+			pattern:         "*",
+			expectedResult:  "",
+			expectedSuccess: true,
+		},
+		// variable length wildcard, wildcard matches nothing
+		{
+			input:           "0123456789",
+			pattern:         "4*56789",
+			expectedResult:  "456789",
+			expectedSuccess: true,
+		},
+		// multiple variable length wildcards
+		{
+			input:           "0123456789",
+			pattern:         "0*2*4*6*8*",
+			expectedResult:  "0123456789",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, shortest match
+		{
+			input:           "011115012225",
+			pattern:         "0*5",
+			expectedResult:  "012225",
+			expectedSuccess: true,
+		},
+		// variable-length wildcard, longest match
+		{
+			input:           "012345012345",
+			pattern:         "0*5",
+			expectedResult:  "012345012345",
+			flags:           GlobLongestMatch,
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualStart, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess && actualStart < len(testData.input) {
+			actualResult = testData.input[actualStart:]
 		}
 
 		// ----------------------------------------------------------------
