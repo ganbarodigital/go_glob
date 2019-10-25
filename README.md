@@ -22,7 +22,8 @@ fmt.Sprintf(g.Match("parser.go")) // prints true
 - [How Does It Work?](#how-does-it-work)
   - [Getting Started](#getting-started)
   - [What Is A Glob Pattern?](#what-is-a-glob-pattern)
-  - [What Can Go Into A Glob Pattern?](#what-can-go-into-a-glob-pattern)
+  - [What Does A Glob Pattern Look Like?](#what-does-a-glob-pattern-look-like)
+  - [What About Extended Globbing, Globstars, and GLOB_IGNORE?](#what-about-extended-globbing-globstars-and-glob_ignore)
   - [What Happens When A Match Method Is Called?](#what-happens-when-a-match-method-is-called)
   - [How Are Errors Handled?](#how-are-errors-handled)
 - [What Do I Do If I Find A Valid Pattern That Glob Errors On / Returns The Wrong Result For?](#what-do-i-do-if-i-find-a-valid-pattern-that-glob-errors-on--returns-the-wrong-result-for)
@@ -99,13 +100,16 @@ if success {
 
 ### What Is A Glob Pattern?
 
-A _glob pattern_ (or just _pattern_ for short) is both a filter (when used with [glob.Match()](#match)) and a search term (when used with the other match methods).
+A _glob pattern_ (or just _pattern_ for short) can be used as a filter, and/or as a search term.
 
-Historically, it was used in UNIX shells to find a list of matching filenames using a simple set of wildcards. (This is known as __pathname expansion__ today.) As UNIX shells became more powerful, they added the ability to manipulate the contents of strings. Instead of inventing new syntax, they took the existing pathname expansion, and reused (most!) of it against arbitrary strings too.
+* a filter when used with [glob.Match()](#match)),
+* both a filter and a search term when used with the other [match methods](#match-methods)
+
+Historically, it was used in UNIX shells to find a list of matching filenames using a simple set of wildcards. (This is known as __pathname expansion__ today.) As UNIX shells became more powerful, they added the ability to manipulate the contents of strings. Instead of inventing new syntax, they took the existing pathname expansion support, and reused (most!) of it against arbitrary strings too.
 
 It's such an integral part of using UNIX systems that many UNIX services and daemons have added their own support for globbing over the years.
 
-### What Can Go Into A Glob Pattern?
+### What Does A Glob Pattern Look Like?
 
 A glob pattern is made from:
 
@@ -117,6 +121,14 @@ A glob pattern is made from:
 * `\` escapes the following character. Use this to tell Glob to treat characters like `*` as a normal char and not as a wildcard.
 
 Any other characters in the pattern are treated as a requirement to match exactly that character.
+
+### What About Extended Globbing, Globstars, and GLOB_IGNORE?
+
+_Extended globbing_ adds support for _pattern lists_ and _alternates_. It's not supported in this release. We'd like to support it in the future, but no promises!
+
+_Globstars_ are the `**` and `**/` wildcards. They're used in _pathname expansion_ to match all files, all directories, and sub-directories. Because `Glob` currently only deals with arbitrary strings, it doesn't make sense to implement _globstar_ support atm.
+
+`GLOB_IGNORE` is an environment variable used in _pathname expansion_ as a second filter against filepaths that have matched the globbing pattern. Because `Glob` currently only deals with arbitrary strings, it doesn't make sense to implement _GLOB_IGNORE_ support atm.
 
 ### What Happens When A Match Method Is Called?
 
