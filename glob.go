@@ -35,6 +35,7 @@
 package glob
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -71,7 +72,7 @@ func (g *Glob) compile(flags int) (*compiledGlob, error) {
 	var err error
 	retval.regex, err = regexp.Compile(rawRegex)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("bad or unsupported glob pattern '%s': %s", g.pattern, err.Error())
 	}
 
 	err = retval.assignMatcher(flags)
