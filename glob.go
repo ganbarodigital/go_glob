@@ -49,12 +49,21 @@ type Glob struct {
 }
 
 // NewGlob turns your pattern into a reusable Glob
-func NewGlob(pattern string) *Glob {
-	return &Glob{
+func NewGlob(pattern string, options ...func(*Glob)) *Glob {
+	// create the Glob we're going to send back
+	retval := Glob{
 		pattern:       pattern,
 		patternParts:  parsePattern(pattern),
 		compiledGlobs: make(map[int]*compiledGlob, 5),
 	}
+
+	// apply any options we've been given
+	for _, option := range options {
+		option(&retval)
+	}
+
+	// all done
+	return &retval
 }
 
 // Pattern returns a copy of the original glob pattern that was compiled

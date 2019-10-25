@@ -40,6 +40,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewGlobAppliesAnyGivenOptions(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pattern := "12345"
+	expectedResult := "alfred"
+
+	opt := func(g *Glob) {
+		g.pattern = expectedResult
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	g := NewGlob(pattern, opt)
+	actualResult := g.Pattern()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestGlobPatternReturnsOriginalPattern(t *testing.T) {
 	t.Parallel()
 
