@@ -38,13 +38,13 @@ fmt.Sprintf(g.Match("parser.go")) // prints true
 
 ## Why Use Glob?
 
-Golang already has `Filepath.Match()`. Why do we need another globbing package?
+Golang already has `filepath.Match()`. Why do we need another globbing package?
 
 ### Who Is Glob For?
 
 _Glob_ is for anyone who wants globbing support to be as close to UNIX shell behaviour as possible.
 
-We've built Glob for our [Scriptish](https://github.com/ganbarodigital/go_scriptish) and [ShellExpand](https://github.com/ganbarodigital/go_shellexpand) projects, when we realised that Golang's `Filepath.Match()` wasn't enough.
+We've built Glob for our [Scriptish](https://github.com/ganbarodigital/go_scriptish) and [ShellExpand](https://github.com/ganbarodigital/go_shellexpand) projects, when we realised that Golang's `filepath.Match()` couldn't do everything we needed.
 
 ### What Are The Differences Between This Package And The Golang Filepath.Match()?
 
