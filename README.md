@@ -48,8 +48,6 @@ We've built Glob for our [Scriptish](https://github.com/ganbarodigital/go_script
 
 ### What Are The Differences Between This Package And The Golang Filepath.Match()?
 
-(If you're new to globbing, this probably doesn't make much sense to you yet. That's okay.)
-
 There's two important differences:
 
 * longest match vs shortest match behaviour of the `*` wildcard
