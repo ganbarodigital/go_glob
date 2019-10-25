@@ -88,12 +88,10 @@ Once you have your `Glob` struct, use its methods to glob your strings:
 
 ```golang
 // equivalent of calling `filepath.Match()`
-if myGlob.Match(myInput) {
-    // do something
-}
+success, err := myGlob.Match(myInput)
 
 // find matching prefix
-pos, success := myGlob.MatchShortestPrefix(myInput)
+pos, success, err := myGlob.MatchShortestPrefix(myInput)
 if success {
     prefix := myInput[:pos]
 }
