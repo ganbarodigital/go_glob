@@ -40,13 +40,20 @@ import (
 
 // Glob is a compiled Glob expression, which can safely be reused.
 //
-// Call either 'Compile' or 'MustCompile' to create a Glob.
+// Call `NewGlob()` to create your Glob structure
 type Glob struct {
-	pattern string
-	regex   *regexp.Regexp
-	matcher func(string) (int, bool)
-	// the flags passed into 'Compile' or 'MustCompile'
-	flags int
+	pattern       string
+	patternParts  []parsedPattern
+	compiledGlobs map[int]*compiledGlob
+}
+
+// NewGlob turns your pattern into a reusable Glob
+func NewGlob(pattern string) *Glob {
+	return &Glob{
+		pattern:       pattern,
+		patternParts:  parsePattern(pattern),
+		compiledGlobs: make(map[int]*compiledGlob, 5),
+	}
 }
 
 // Pattern returns a copy of the original glob pattern that was compiled
@@ -55,90 +62,141 @@ func (g Glob) Pattern() string {
 	return g.pattern
 }
 
-// Flags returns a copy of the original flags that were passed into the
-// Glob compiler
-func (g Glob) Flags() int {
-	return g.flags
+// compile creates a new regex from the previously parsed pattern, that will
+// satisfy the given flags.
+func (g *Glob) compile(flags int) (*compiledGlob, error) {
+	retval := compiledGlob{}
+	rawRegex := buildRegex(g.patternParts, flags)
+
+	var err error
+	retval.regex, err = regexp.Compile(rawRegex)
+	if err != nil {
+		return nil, err
+	}
+
+	err = retval.assignMatcher(flags)
+	if err != nil {
+		return nil, err
+	}
+
+	// all done
+	return &retval, nil
+
 }
 
-// Match returns true if the input string satisfies the pre-compiled
-// Glob pattern and flags.
+// getCompiledGlobForFlags will return a compiled glob that will satisfy
+// the given flags.
+//
+// It will build a new compiled glob if a suitable one does not already
+// exist.
+func (g *Glob) getCompiledGlobForFlags(flags int) (*compiledGlob, error) {
+	// do we already have a compiled glob?
+	existingGlob, ok := g.compiledGlobs[flags]
+	if ok {
+		return existingGlob, nil
+	}
+
+	// no, we need to make one
+	compiledGlob, err := g.compile(flags)
+	if err != nil {
+		return nil, err
+	}
+
+	g.compiledGlobs[flags] = compiledGlob
+	return compiledGlob, nil
+}
+
+// Match determines if the whole input string matches the given glob
+// pattern.
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
 func (g *Glob) Match(input string) bool {
-	_, success := g.matcher(input)
+	compiledGlob, err := g.getCompiledGlobForFlags(GlobMatchWholeString)
+	if err != nil {
+		panic(err)
+	}
+
+	_, success := compiledGlob.matcher(input)
 	return success
 }
 
-// MatchWithPosition returns the position that matches the pre-compiled
-// Glob pattern and flags.
-func (g *Glob) MatchWithPosition(input string) (int, bool) {
-	return g.matcher(input)
+// MatchShortestPrefix returns the prefix of input that matches the glob
+// pattern. It treats '*' as matching minimum number of characters.
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// Returns
+// - length of prefix that matches, or zero otherwise
+// - `true` if the input has prefix that matched the pattern
+func (g *Glob) MatchShortestPrefix(input string) (int, bool) {
+	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorPrefix + GlobShortestMatch)
+	if err != nil {
+		panic(err)
+	}
+
+	return compiledGlob.matcher(input)
 }
 
-func (g *Glob) matchGlobWholeString(input string) (int, bool) {
-	loc := g.regex.FindStringIndex(input)
-	if loc == nil {
-		return 0, false
+// MatchLongestPrefix returns the prefix of input that matches the glob
+// pattern. It treats '*' as matching maximum number of characters.
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// Returns
+// - length of prefix that matches, or zero otherwise
+// - `true` if the input has prefix tath matched the pattern
+func (g *Glob) MatchLongestPrefix(input string) (int, bool) {
+	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorPrefix + GlobLongestMatch)
+	if err != nil {
+		panic(err)
 	}
 
-	return len(input), true
+	return compiledGlob.matcher(input)
 }
 
-func (g *Glob) matchGlobShortestPrefix(input string) (int, bool) {
-	loc := g.regex.FindStringIndex(input)
-	if loc == nil {
-		return 0, false
+// MatchShortestSuffix returns the suffix of input that matches the glob
+// pattern. It treats '*' as matching minimum number of characters.
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// It is computationally more expensive than the other MatchXXX() functions,
+// due to Golang's leftmost-match mechanics (which we have to compensate for).
+//
+// Returns
+// - start of suffix that matches (can be len(input)), or zero otherwise
+// - `true` if the input has suffix that matched the pattern
+func (g *Glob) MatchShortestSuffix(input string) (int, bool) {
+	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorSuffix + GlobShortestMatch)
+	if err != nil {
+		panic(err)
 	}
 
-	return loc[1], true
+	return compiledGlob.matcher(input)
 }
 
-func (g *Glob) matchGlobLongestPrefix(input string) (int, bool) {
-	loc := g.regex.FindStringIndex(input)
-	if loc == nil {
-		return 0, false
+// MatchLongestSuffix returns the suffix of input that matches the glob
+// pattern. It treats '*' as matching maximum number of characters.
+//
+// Intent is to be 100% compatible with UNIX shell globbing. Please open
+// a GitHub issue if you find any test cases that show up compatibility
+// problems.
+//
+// Returns
+// - start of suffix that matches (can be len(input)), or zero otherwise
+// - `true` if the input has suffix that matched the pattern
+func (g *Glob) MatchLongestSuffix(input string) (int, bool) {
+	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorSuffix + GlobLongestMatch)
+	if err != nil {
+		panic(err)
 	}
 
-	return loc[1], true
-}
-
-func (g *Glob) matchGlobShortestSuffix(input string) (int, bool) {
-	loc := g.regex.FindStringIndex(input)
-	if loc == nil {
-		return 0, false
-	}
-
-	// Golang's regexes return the left-most result ... which may not
-	// be the shortest result when we're anchoring to a suffix
-	//
-	// once we have found a match, we need to see if there is a shorter
-	// string that will also match
-	//
-	// I'm sure this can be optimised in the future. PRs most welcome!
-	lastLoc := loc
-	i := lastLoc[0] + 1
-	for i < len(input)+1 {
-		var subLoc []int
-		if i == len(input) {
-			subLoc = g.regex.FindStringIndex("")
-		} else {
-			subLoc = g.regex.FindStringIndex(input[i:])
-		}
-		if subLoc == nil {
-			return lastLoc[0], true
-		}
-		copy(lastLoc, subLoc)
-		lastLoc[0] += i
-		lastLoc[1] += i
-		i += subLoc[0] + 1
-	}
-	return lastLoc[0], true
-}
-
-func (g *Glob) matchGlobLongestSuffix(input string) (int, bool) {
-	loc := g.regex.FindStringIndex(input)
-	if loc == nil {
-		return 0, false
-	}
-
-	return loc[0], true
+	return compiledGlob.matcher(input)
 }

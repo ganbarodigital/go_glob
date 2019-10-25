@@ -35,8 +35,6 @@
 package glob
 
 import (
-	"fmt"
-	"regexp"
 	"strings"
 )
 
@@ -74,71 +72,4 @@ func buildRegex(pattern []parsedPattern, flags int) string {
 	}
 
 	return rawRegex.String()
-}
-
-// Compile attempts to convert your glob pattern into a Golang regex
-// that's ready to use
-func Compile(pattern string, flags int) (*Glob, error) {
-	retval := Glob{
-		pattern: pattern,
-		flags:   flags,
-	}
-
-	parsedPattern := parsePattern(pattern)
-	rawRegex := buildRegex(parsedPattern, flags)
-
-	var err error
-	retval.regex, err = regexp.Compile(rawRegex)
-	if err != nil {
-		return nil, err
-	}
-
-	err = assignMatcherToGlob(&retval, flags)
-	if err != nil {
-		return nil, err
-	}
-
-	// all done
-	return &retval, nil
-}
-
-func assignMatcherToGlob(g *Glob, flags int) error {
-	switch flags {
-	case GlobAnchorPrefix + GlobShortestMatch:
-		g.matcher = g.matchGlobShortestPrefix
-	case GlobAnchorPrefix + GlobLongestMatch:
-		g.matcher = g.matchGlobLongestPrefix
-	case GlobAnchorSuffix + GlobShortestMatch:
-		g.matcher = g.matchGlobShortestSuffix
-	case GlobAnchorSuffix + GlobLongestMatch:
-		g.matcher = g.matchGlobLongestSuffix
-	case GlobAnchorPrefix + GlobAnchorSuffix:
-		g.matcher = g.matchGlobWholeString
-	default:
-		return fmt.Errorf("unsupported flags combination %d", flags)
-	}
-
-	return nil
-}
-
-// MustCompile is like Compile, but it panics if the underlying regex
-// cannot be compiled
-func MustCompile(pattern string, flags int) *Glob {
-	retval := Glob{
-		pattern: pattern,
-		flags:   flags,
-	}
-
-	parsedPattern := parsePattern(pattern)
-	rawRegex := buildRegex(parsedPattern, flags)
-
-	retval.regex = regexp.MustCompile(rawRegex)
-
-	err := assignMatcherToGlob(&retval, flags)
-	if err != nil {
-		panic(err)
-	}
-
-	// all done
-	return &retval
 }

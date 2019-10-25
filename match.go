@@ -49,7 +49,7 @@ package glob
 // a GitHub issue if you find any test cases that show up compatibility
 // problems.
 func Match(input, pattern string) bool {
-	g := MustCompile(pattern, GlobMatchWholeString+GlobShortestMatch)
+	g := NewGlob(pattern)
 	return g.Match(input)
 }
 
@@ -101,8 +101,8 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix that matched the pattern
 func MatchShortestPrefix(input, pattern string) (int, bool) {
-	g := MustCompile(pattern, GlobAnchorPrefix+GlobShortestMatch)
-	return g.MatchWithPosition(input)
+	g := NewGlob(pattern)
+	return g.MatchShortestPrefix(input)
 }
 
 // MatchLongestPrefix returns the prefix of input that matches the glob
@@ -124,8 +124,8 @@ func MatchShortestPrefix(input, pattern string) (int, bool) {
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix tath matched the pattern
 func MatchLongestPrefix(input, pattern string) (int, bool) {
-	g := MustCompile(pattern, GlobAnchorPrefix+GlobLongestMatch)
-	return g.MatchWithPosition(input)
+	g := NewGlob(pattern)
+	return g.MatchLongestPrefix(input)
 }
 
 // MatchSuffix returns the start of input that matches the glob pattern.
@@ -179,10 +179,8 @@ func MatchSuffix(input, pattern string, flags int) (int, bool) {
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
 func MatchShortestSuffix(input, pattern string) (int, bool) {
-	flags := GlobAnchorSuffix + GlobShortestMatch
-	g := MustCompile(pattern, flags)
-
-	return g.MatchWithPosition(input)
+	g := NewGlob(pattern)
+	return g.MatchShortestSuffix(input)
 }
 
 // MatchLongestSuffix returns the suffix of input that matches the glob
@@ -204,8 +202,6 @@ func MatchShortestSuffix(input, pattern string) (int, bool) {
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
 func MatchLongestSuffix(input, pattern string) (int, bool) {
-	flags := GlobAnchorSuffix + GlobLongestMatch
-	g := MustCompile(pattern, flags)
-
-	return g.MatchWithPosition(input)
+	g := NewGlob(pattern)
+	return g.MatchLongestSuffix(input)
 }
