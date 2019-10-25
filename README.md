@@ -77,10 +77,10 @@ Import _Glob_ into your Golang code:
 import glob "github.com/ganbarodigital/go_glob"
 ```
 
-Create a `Glob` struct, by calling [NewGlob()](#newglob) with your globbing pattern:
+Create a `Glob` struct, by calling [glob.NewGlob()](#newglob) with your globbing pattern:
 
 ```golang
-myGlob := NewGlob("abc*.go")
+myGlob := glob.NewGlob("abc*.go")
 ```
 
 Once you have your `Glob` struct, use its methods to glob your strings:
