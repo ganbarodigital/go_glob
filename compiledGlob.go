@@ -55,7 +55,7 @@ func (g *compiledGlob) assignMatcher(flags int) error {
 		g.matcher = g.matchShortestSuffix
 	case GlobAnchorSuffix + GlobLongestMatch:
 		g.matcher = g.matchLongestSuffix
-	case GlobAnchorPrefix + GlobAnchorSuffix:
+	case GlobAnchorPrefix + GlobAnchorSuffix, GlobAnchorPrefix + GlobAnchorSuffix + GlobLongestMatch:
 		g.matcher = g.matchWholeString
 	default:
 		return fmt.Errorf("glob compiler: unsupported flags combination %d", flags)
