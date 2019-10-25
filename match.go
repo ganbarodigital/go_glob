@@ -48,7 +48,7 @@ package glob
 // Intent is to be 100% compatible with UNIX shell globbing. Please open
 // a GitHub issue if you find any test cases that show up compatibility
 // problems.
-func Match(input, pattern string) bool {
+func Match(input, pattern string) (bool, error) {
 	g := NewGlob(pattern)
 	return g.Match(input)
 }
@@ -74,7 +74,7 @@ func Match(input, pattern string) bool {
 // Returns
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix that matched the pattern
-func MatchPrefix(input, pattern string, flags int) (int, bool) {
+func MatchPrefix(input, pattern string, flags int) (int, bool, error) {
 	if flags&GlobLongestMatch != 0 {
 		return MatchLongestPrefix(input, pattern)
 	}
@@ -100,7 +100,7 @@ func MatchPrefix(input, pattern string, flags int) (int, bool) {
 // Returns
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix that matched the pattern
-func MatchShortestPrefix(input, pattern string) (int, bool) {
+func MatchShortestPrefix(input, pattern string) (int, bool, error) {
 	g := NewGlob(pattern)
 	return g.MatchShortestPrefix(input)
 }
@@ -123,7 +123,7 @@ func MatchShortestPrefix(input, pattern string) (int, bool) {
 // Returns
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix tath matched the pattern
-func MatchLongestPrefix(input, pattern string) (int, bool) {
+func MatchLongestPrefix(input, pattern string) (int, bool, error) {
 	g := NewGlob(pattern)
 	return g.MatchLongestPrefix(input)
 }
@@ -149,7 +149,7 @@ func MatchLongestPrefix(input, pattern string) (int, bool) {
 // Returns
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
-func MatchSuffix(input, pattern string, flags int) (int, bool) {
+func MatchSuffix(input, pattern string, flags int) (int, bool, error) {
 	if flags&GlobLongestMatch != 0 {
 		return MatchLongestSuffix(input, pattern)
 	}
@@ -178,7 +178,7 @@ func MatchSuffix(input, pattern string, flags int) (int, bool) {
 // Returns
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
-func MatchShortestSuffix(input, pattern string) (int, bool) {
+func MatchShortestSuffix(input, pattern string) (int, bool, error) {
 	g := NewGlob(pattern)
 	return g.MatchShortestSuffix(input)
 }
@@ -201,7 +201,7 @@ func MatchShortestSuffix(input, pattern string) (int, bool) {
 // Returns
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
-func MatchLongestSuffix(input, pattern string) (int, bool) {
+func MatchLongestSuffix(input, pattern string) (int, bool, error) {
 	g := NewGlob(pattern)
 	return g.MatchLongestSuffix(input)
 }

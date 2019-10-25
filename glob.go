@@ -112,14 +112,14 @@ func (g *Glob) getCompiledGlobForFlags(flags int) (*compiledGlob, error) {
 // Intent is to be 100% compatible with UNIX shell globbing. Please open
 // a GitHub issue if you find any test cases that show up compatibility
 // problems.
-func (g *Glob) Match(input string) bool {
+func (g *Glob) Match(input string) (bool, error) {
 	compiledGlob, err := g.getCompiledGlobForFlags(GlobMatchWholeString)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 
-	_, success := compiledGlob.matcher(input)
-	return success
+	_, success, err := compiledGlob.matcher(input)
+	return success, err
 }
 
 // MatchShortestPrefix returns the prefix of input that matches the glob
@@ -132,10 +132,10 @@ func (g *Glob) Match(input string) bool {
 // Returns
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix that matched the pattern
-func (g *Glob) MatchShortestPrefix(input string) (int, bool) {
+func (g *Glob) MatchShortestPrefix(input string) (int, bool, error) {
 	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorPrefix + GlobShortestMatch)
 	if err != nil {
-		panic(err)
+		return 0, false, err
 	}
 
 	return compiledGlob.matcher(input)
@@ -151,10 +151,10 @@ func (g *Glob) MatchShortestPrefix(input string) (int, bool) {
 // Returns
 // - length of prefix that matches, or zero otherwise
 // - `true` if the input has prefix tath matched the pattern
-func (g *Glob) MatchLongestPrefix(input string) (int, bool) {
+func (g *Glob) MatchLongestPrefix(input string) (int, bool, error) {
 	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorPrefix + GlobLongestMatch)
 	if err != nil {
-		panic(err)
+		return 0, false, err
 	}
 
 	return compiledGlob.matcher(input)
@@ -173,10 +173,10 @@ func (g *Glob) MatchLongestPrefix(input string) (int, bool) {
 // Returns
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
-func (g *Glob) MatchShortestSuffix(input string) (int, bool) {
+func (g *Glob) MatchShortestSuffix(input string) (int, bool, error) {
 	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorSuffix + GlobShortestMatch)
 	if err != nil {
-		panic(err)
+		return 0, false, err
 	}
 
 	return compiledGlob.matcher(input)
@@ -192,10 +192,10 @@ func (g *Glob) MatchShortestSuffix(input string) (int, bool) {
 // Returns
 // - start of suffix that matches (can be len(input)), or zero otherwise
 // - `true` if the input has suffix that matched the pattern
-func (g *Glob) MatchLongestSuffix(input string) (int, bool) {
+func (g *Glob) MatchLongestSuffix(input string) (int, bool, error) {
 	compiledGlob, err := g.getCompiledGlobForFlags(GlobAnchorSuffix + GlobLongestMatch)
 	if err != nil {
-		panic(err)
+		return 0, false, err
 	}
 
 	return compiledGlob.matcher(input)

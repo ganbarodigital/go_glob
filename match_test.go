@@ -71,11 +71,12 @@ func TestMatchMatchesEmptyStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualSuccess := Match(testData.input, testData.pattern)
+		actualSuccess, err := Match(testData.input, testData.pattern)
 
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 	}
 }
@@ -110,11 +111,12 @@ func TestMatchMatchesStaticStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualSuccess := Match(testData.input, testData.pattern)
+		actualSuccess, err := Match(testData.input, testData.pattern)
 
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 	}
 }
@@ -161,11 +163,12 @@ func TestMatchMatchesSingleWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualSuccess := Match(testData.input, testData.pattern)
+		actualSuccess, err := Match(testData.input, testData.pattern)
 
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 	}
 }
@@ -231,11 +234,12 @@ func TestMatchMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualSuccess := Match(testData.input, testData.pattern)
+		actualSuccess, err := Match(testData.input, testData.pattern)
 
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 	}
 }
@@ -265,11 +269,12 @@ func TestMatchMatchesCharacterSets(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualSuccess := Match(testData.input, testData.pattern)
+		actualSuccess, err := Match(testData.input, testData.pattern)
 
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 	}
 }
@@ -313,7 +318,7 @@ func TestMatchPrefixMatchesEmptyStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess, err := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -322,6 +327,7 @@ func TestMatchPrefixMatchesEmptyStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -376,7 +382,7 @@ func TestMatchPrefixMatchesStaticStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess, err := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -385,6 +391,7 @@ func TestMatchPrefixMatchesStaticStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -437,7 +444,7 @@ func TestMatchPrefixMatchesSingleWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess, err := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -446,6 +453,7 @@ func TestMatchPrefixMatchesSingleWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -521,7 +529,7 @@ func TestMatchPrefixMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess, err := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -530,6 +538,7 @@ func TestMatchPrefixMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -560,7 +569,7 @@ func TestMatchPrefixMatchesCharacterSets(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess, err := MatchPrefix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -569,6 +578,7 @@ func TestMatchPrefixMatchesCharacterSets(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -613,7 +623,7 @@ func TestMatchSuffixMatchesEmptyStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualLen, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualLen, actualSuccess, err := MatchSuffix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess {
 			actualResult = testData.input[:actualLen]
@@ -622,6 +632,7 @@ func TestMatchSuffixMatchesEmptyStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -676,7 +687,7 @@ func TestMatchSuffixMatchesStaticStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualStart, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualStart, actualSuccess, err := MatchSuffix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess && actualStart < len(testData.input) {
 			actualResult = testData.input[actualStart:]
@@ -685,6 +696,7 @@ func TestMatchSuffixMatchesStaticStrings(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -737,7 +749,7 @@ func TestMatchSuffixMatchesSingleWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualStart, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualStart, actualSuccess, err := MatchSuffix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess && actualStart < len(testData.input) {
 			actualResult = testData.input[actualStart:]
@@ -746,6 +758,7 @@ func TestMatchSuffixMatchesSingleWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
@@ -828,7 +841,7 @@ func TestMatchSuffixMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// perform the change
 
-		actualStart, actualSuccess := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualStart, actualSuccess, err := MatchSuffix(testData.input, testData.pattern, testData.flags)
 		actualResult := ""
 		if actualSuccess && actualStart < len(testData.input) {
 			actualResult = testData.input[actualStart:]
@@ -837,6 +850,7 @@ func TestMatchSuffixMatchesVariableLengthWildCards(t *testing.T) {
 		// ----------------------------------------------------------------
 		// test the results
 
+		assert.Nil(t, err)
 		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}

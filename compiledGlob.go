@@ -41,7 +41,7 @@ import (
 
 type compiledGlob struct {
 	regex   *regexp.Regexp
-	matcher func(string) (int, bool)
+	matcher func(string) (int, bool, error)
 	flags   int
 }
 
@@ -64,37 +64,37 @@ func (g *compiledGlob) assignMatcher(flags int) error {
 	return nil
 }
 
-func (g *compiledGlob) matchWholeString(input string) (int, bool) {
+func (g *compiledGlob) matchWholeString(input string) (int, bool, error) {
 	loc := g.regex.FindStringIndex(input)
 	if loc == nil {
-		return 0, false
+		return 0, false, nil
 	}
 
-	return len(input), true
+	return len(input), true, nil
 }
 
-func (g *compiledGlob) matchShortestPrefix(input string) (int, bool) {
+func (g *compiledGlob) matchShortestPrefix(input string) (int, bool, error) {
 	loc := g.regex.FindStringIndex(input)
 	if loc == nil {
-		return 0, false
+		return 0, false, nil
 	}
 
-	return loc[1], true
+	return loc[1], true, nil
 }
 
-func (g *compiledGlob) matchLongestPrefix(input string) (int, bool) {
+func (g *compiledGlob) matchLongestPrefix(input string) (int, bool, error) {
 	loc := g.regex.FindStringIndex(input)
 	if loc == nil {
-		return 0, false
+		return 0, false, nil
 	}
 
-	return loc[1], true
+	return loc[1], true, nil
 }
 
-func (g *compiledGlob) matchShortestSuffix(input string) (int, bool) {
+func (g *compiledGlob) matchShortestSuffix(input string) (int, bool, error) {
 	loc := g.regex.FindStringIndex(input)
 	if loc == nil {
-		return 0, false
+		return 0, false, nil
 	}
 
 	// Golang's regexes return the left-most result ... which may not
@@ -114,21 +114,21 @@ func (g *compiledGlob) matchShortestSuffix(input string) (int, bool) {
 			subLoc = g.regex.FindStringIndex(input[i:])
 		}
 		if subLoc == nil {
-			return lastLoc[0], true
+			return lastLoc[0], true, nil
 		}
 		copy(lastLoc, subLoc)
 		lastLoc[0] += i
 		lastLoc[1] += i
 		i += subLoc[0] + 1
 	}
-	return lastLoc[0], true
+	return lastLoc[0], true, nil
 }
 
-func (g *compiledGlob) matchLongestSuffix(input string) (int, bool) {
+func (g *compiledGlob) matchLongestSuffix(input string) (int, bool, error) {
 	loc := g.regex.FindStringIndex(input)
 	if loc == nil {
-		return 0, false
+		return 0, false, nil
 	}
 
-	return loc[0], true
+	return loc[0], true, nil
 }

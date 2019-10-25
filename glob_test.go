@@ -157,7 +157,7 @@ func TestGlobGetCompiledGlobForFlagsReturnsErrorWhenRegexInvalid(t *testing.T) {
 	assert.Nil(t, actualResult)
 }
 
-func TestGlobMatchPanicsWhenRegexInvalid(t *testing.T) {
+func TestGlobMatchReturnsErrorWhenRegexInvalid(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -170,14 +170,16 @@ func TestGlobMatchPanicsWhenRegexInvalid(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	assert.Panics(t, func() { g.Match("") })
+	success, err := g.Match("")
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	assert.Error(t, err)
+	assert.False(t, success)
 }
 
-func TestGlobMatchShortestPrefixPanicsWhenRegexInvalid(t *testing.T) {
+func TestGlobMatchShortestPrefixReturnsErrorWhenRegexInvalid(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -190,14 +192,17 @@ func TestGlobMatchShortestPrefixPanicsWhenRegexInvalid(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	assert.Panics(t, func() { g.MatchShortestPrefix("") })
+	pos, success, err := g.MatchShortestPrefix("")
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	assert.Error(t, err)
+	assert.Equal(t, 0, pos)
+	assert.False(t, success)
 }
 
-func TestGlobMatchLongestPrefixPanicsWhenRegexInvalid(t *testing.T) {
+func TestGlobMatchLongestPrefixReturnsErrorWhenRegexInvalid(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -210,14 +215,17 @@ func TestGlobMatchLongestPrefixPanicsWhenRegexInvalid(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	assert.Panics(t, func() { g.MatchLongestPrefix("") })
+	pos, success, err := g.MatchLongestPrefix("")
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	assert.Error(t, err)
+	assert.Equal(t, 0, pos)
+	assert.False(t, success)
 }
 
-func TestGlobMatchShortestSuffixPanicsWhenRegexInvalid(t *testing.T) {
+func TestGlobMatchShortestSuffixReturnsErrorWhenRegexInvalid(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -230,14 +238,17 @@ func TestGlobMatchShortestSuffixPanicsWhenRegexInvalid(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	assert.Panics(t, func() { g.MatchShortestSuffix("") })
+	pos, success, err := g.MatchShortestSuffix("")
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	assert.Error(t, err)
+	assert.Equal(t, 0, pos)
+	assert.False(t, success)
 }
 
-func TestGlobMatchLongestSuffixPanicsWhenRegexInvalid(t *testing.T) {
+func TestGlobMatchLongestSuffixReturnsErrorWhenRegexInvalid(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -250,9 +261,12 @@ func TestGlobMatchLongestSuffixPanicsWhenRegexInvalid(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	assert.Panics(t, func() { g.MatchLongestSuffix("") })
+	pos, success, err := g.MatchLongestSuffix("")
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	assert.Error(t, err)
+	assert.Equal(t, 0, pos)
+	assert.False(t, success)
 }
