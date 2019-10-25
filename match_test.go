@@ -855,3 +855,85 @@ func TestMatchSuffixMatchesVariableLengthWildCards(t *testing.T) {
 		assert.Equal(t, testData.expectedResult, actualResult, testData)
 	}
 }
+
+func TestMatchTestPrefixCasesUsedInREADME(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "path/to/folder",
+			pattern:         "*/",
+			expectedResult:  "path/",
+			expectedSuccess: true,
+		},
+		{
+			input:           "path/to/folder",
+			pattern:         "*/",
+			flags:           GlobLongestMatch,
+			expectedResult:  "path/to/",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualStart, actualSuccess, err := MatchPrefix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess {
+			actualResult = testData.input[:actualStart]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Nil(t, err)
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
+
+func TestMatchTestSuffixCasesUsedInREADME(t *testing.T) {
+	t.Parallel()
+
+	testDataSet := []testDataStruct{
+		{
+			input:           "path/to/folder",
+			pattern:         "/*",
+			expectedResult:  "/folder",
+			expectedSuccess: true,
+		},
+		{
+			input:           "path/to/folder",
+			pattern:         "/*",
+			flags:           GlobLongestMatch,
+			expectedResult:  "/to/folder",
+			expectedSuccess: true,
+		},
+	}
+
+	for _, testData := range testDataSet {
+		// ----------------------------------------------------------------
+		// setup your test
+
+		// ----------------------------------------------------------------
+		// perform the change
+
+		actualStart, actualSuccess, err := MatchSuffix(testData.input, testData.pattern, testData.flags)
+		actualResult := ""
+		if actualSuccess && actualStart < len(testData.input) {
+			actualResult = testData.input[actualStart:]
+		}
+
+		// ----------------------------------------------------------------
+		// test the results
+
+		assert.Nil(t, err)
+		assert.Equal(t, testData.expectedSuccess, actualSuccess, testData)
+		assert.Equal(t, testData.expectedResult, actualResult, testData)
+	}
+}
