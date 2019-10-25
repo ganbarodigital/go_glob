@@ -27,6 +27,7 @@ fmt.Sprintf(g.Match("parser.go")) // prints true
   - [How Are Errors Handled?](#how-are-errors-handled)
 - [What Do I Do If I Find A Valid Pattern That Glob Errors On / Returns The Wrong Result For?](#what-do-i-do-if-i-find-a-valid-pattern-that-glob-errors-on--returns-the-wrong-result-for)
 - [Creating A Glob](#creating-a-glob)
+  - [NewGlob()](#newglob)
 - [Match Methods](#match-methods)
   - [Match()](#match)
   - [MatchShortestPrefix()](#matchshortestprefix)
@@ -160,6 +161,8 @@ We're aiming for 100% compatibility with UNIX shell globbing behaviour _when app
 We can't accept requests to make _Glob_ behave differently to how globbing works within a UNIX shell.
 
 ## Creating A Glob
+
+### NewGlob()
 
 To create a glob, call `glob.NewGlob()` with your _globbing pattern_:
 
